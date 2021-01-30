@@ -3,11 +3,11 @@ import sys
 import json
 import contextlib
 import io
-from enum import Enum
 
 from mex.utils import eprint
 from mex.context import Context, add_scope
 import mex.dotted_dict as dotkey
+from mex.val import *
 
 ###########
 # Globals #
@@ -28,32 +28,6 @@ new_subscope_re = re.compile('^(\s*)(.*?):\s*$')
 whitespace_re = re.compile('^\s*$')
 list_ele_re = re.compile('^\s*-.*$')
 heading_re = re.compile('^#.*$')
-
-###########
-# Classes #
-###########
-
-class ValType(Enum):
-    LITERAL = 1
-    EXPR = 2
-    ERROR = 3
-
-class Val:
-    def __init__(self, valType, val):
-        self.valType = valType
-        self.val = val
-
-    def __str__(self):
-        if self.valType == ValType.ERROR:
-            return "Error({})".format(self.val)
-        else:
-            return str(self.val)
-
-    def raw (self):
-        if self.valType == ValType.ERROR:
-            return "RawError({})".format(self.val)
-        else:
-            return self.val
 
 ####################
 # Helper functions #

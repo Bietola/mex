@@ -2,6 +2,7 @@ from typing import List, NewType, Callable
 
 from mex.utils import eprint, remove_common_prefix
 import mex.dotted_dict as dotkey
+from mex.val import *
 
 #########
 # Types #
@@ -102,13 +103,24 @@ class Context:
             if k != cur_item_abs 
         }
 
-    def tree(self, root_path, raw=1):
-        if raw == 1:
-            trav_map = lambda p: (p[0], p[1].raw() if p[1] else None)
+    def _trav_flags(raw=1):
+        trav_map = lambda x: x
 
-        self._tree(root_path, TravConf(
+        if raw == 1:
+            # TODO: Use composition
+            trav_map = lambda p: (p[0], p[1].raw())
+
+            # This sickens me...
+            # trav_map_res = lambda x: [ (p[0][0], p[0][1].raw())
+            #     for p in [trav_map(x)]
+            # ]
+
+        return TravConf(
             trav_map
-        ))
+        )
+
+    def tree(self, root_path, **kwargs):
+        return self._tree(root_path, Context._trav_flags(**kwargs))
 
     def vtree(self, root_path, **kwargs):
         return list(flatten_dict(self.tree(root_path, **kwargs)).values())

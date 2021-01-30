@@ -14,12 +14,12 @@ mock_env = {
     'subject': {
         'studied': {
             # total:$> { some exp }
-            'total': None, 
+            'total': Val.Nil(), 
 
-            'l1': 10,
-            'l2': 22,
-            'l3': 3,
-            'intruder': 1
+            'l1': Val.Lit(10),
+            'l2': Val.Lit(22),
+            'l3': Val.Lit(3),
+            'intruder': Val.Lit(1)
         }
     }
 }
@@ -53,9 +53,9 @@ def test_vtree_numbers():
 def test_vtree_mixed_types():
     ctx = Context(
         env = {
-            'constant': 2,
-            'test': 'hello',
-            'test2': None
+            'constant': Val.Lit(2),
+            'test': Val.Lit('hello'),
+            'test2': Val.Nil()
         },
         scope = [],
         cur_item = 'test2'

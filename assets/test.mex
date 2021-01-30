@@ -1,12 +1,9 @@
 constant: 10
 
-- test:
-    -test:$> ${ ret = $.other.l1 + $.other.l2 + $constant }
-    -other:
-        -l1: 3
-        -l2:$> ${ ret.update({ 'ret': $.l1 + 2 }) } 
-        -l3: "hello"
-        -l4:#> 2
+total:$> ${ sum(ctx.vtree('.')) }
+l1: 1
+l2: 2
+l3: 3
+l4: 4
 
-test: "hello"
-test2:$> ${ ctx.vtree('.') } 
+test2: 2
