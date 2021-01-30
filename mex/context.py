@@ -93,7 +93,9 @@ class Context:
         if not root:
             return {}
 
-        cur_item_abs = add_scope_rel(self.scope, self.cur_item, root_path)
+        # TODO: Figure this out (NB. Currently only works with '.' as root_path)
+        # cur_item_abs = add_scope_rel(self.scope, self.cur_item, root_path)
+        cur_item_abs = self.cur_item.split('.')[-1]
         return { 
             k: v for (k, v)
             in map(

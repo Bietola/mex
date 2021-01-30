@@ -1,9 +1,10 @@
 constant: 10
 
-total:$> ${ sum(ctx.vtree('.')) }
-l1: 1
-l2: 2
-l3: 3
-l4: 4
+test:
+    total:$> ${ sum(ctx.vtree('.')) }
+    l1: 1
+    l2: 2
+    l3: 3
+    l4: 4
 
 test2: 2

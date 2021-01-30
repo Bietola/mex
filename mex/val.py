@@ -1,5 +1,7 @@
 from enum import Enum
 
+from mex.utils import eprint
+
 class ValType(Enum):
     LITERAL = 1
     EXPR = 2
@@ -17,12 +19,16 @@ class Val:
         self.val = val
 
     def Lit(val):
+        # TODO: Don't parse only number literals
+        if isinstance(val, str) and val.replace('.', '', 1).isdigit():
+            val = float(val)
+
         return Val(ValType.LITERAL, val)
 
     def Nil():
         return Val.Lit(None)
 
-    def raw (self):
+    def raw(self):
         if self.valType == ValType.ERROR:
             return "RawError({})".format(self.val)
         else:

@@ -15,7 +15,6 @@ from mex.val import *
 
 env = {}
 cached_exps = {}
-lines = []
 
 #######################
 # Precompiles regexes #
@@ -121,7 +120,7 @@ def do_eval(exp_key, exp, scope):
 
         exec('ctx.ret = {}'.format(stmts[-1].strip()), {'ctx': ctx})
 
-        return Val(ValType.LITERAL, ctx.ret)
+        return Val.Lit(ctx.ret)
 
     except Exception as e:
         return Val(ValType.ERROR, "EvalError({}) on Program({})".format(e, stmts))
@@ -174,6 +173,10 @@ update_scope_and_then.INDENT_UNIT = 4
 ########
 
 def main():
+    # Remove pesky globals...
+    global cached_exps
+    global env
+
     # Get contents of file
     lines = sys.stdin.read().split('\n')
 
@@ -225,7 +228,7 @@ def main():
             elif (control_char == '#'):
                 val = Val(ValType.EXPR, dotkey.get(cached_exps, add_scope(scope, name)))
             else:
-                val = Val(ValType.LITERAL, m.group(4))
+                val = Val.Lit(m.group(4))
             dotkey.insert(env, add_scope(scope, name), val, True)
 
     # eprint(env, end = '')
