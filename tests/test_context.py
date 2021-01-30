@@ -37,6 +37,7 @@ mock_ctx = Context(
 def test_tree():
     result = mock_ctx.tree('.')
 
+    # CICCIO: Turn numbers into Vals in mocks
     expected = {
         'l1': 10,
         'l2': 22,
@@ -46,5 +47,18 @@ def test_tree():
 
     assert result == expected
 
-def test_vtree():
+def test_vtree_numbers():
     assert mock_ctx.vtree('.') == [10, 22, 3, 1]
+
+def test_vtree_mixed_types():
+    ctx = Context(
+        env = {
+            'constant': 2,
+            'test': 'hello',
+            'test2': None
+        },
+        scope = [],
+        cur_item = 'test2'
+    )
+
+    assert ctx.vtree('.') == [2, 'hello']

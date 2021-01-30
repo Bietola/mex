@@ -1,4 +1,4 @@
-from typing import List, NewType
+from typing import List, NewType, Callable
 
 from mex.utils import eprint, remove_common_prefix
 import mex.dotted_dict as dotkey
@@ -57,6 +57,16 @@ def expand_path(scope: Scope, path) -> Path:
 
     return path
 
+##################
+# Helper Classes #
+##################
+
+class TravConf:
+    trav_map: Callable
+
+    def __init__(self, trav_map):
+        self.trav_map = trav_map
+
 #################
 # Context class #
 #################
@@ -74,7 +84,7 @@ class Context:
         self.cached_exps = cached_exps
         self.cur_item = cur_item
 
-    def tree(self, root_path):
+    def _tree(self, root_path, tcfg: TravConf):
         root_path = expand_path(self.scope, root_path)
 
         root = dotkey.get(self.env, root_path)
@@ -83,8 +93,22 @@ class Context:
             return {}
 
         cur_item_abs = add_scope_rel(self.scope, self.cur_item, root_path)
-        eprint(cur_item_abs)
-        return { k: v for (k, v) in root.items() if k != cur_item_abs }
+        return { 
+            k: v for (k, v)
+            in map(
+                tcfg.trav_map,
+                root.items()
+            )
+            if k != cur_item_abs 
+        }
 
-    def vtree(self, root_path):
-        return list(flatten_dict(self.tree(root_path)).values())
+    def tree(self, root_path, raw=1):
+        if raw == 1:
+            trav_map = lambda p: (p[0], p[1].raw() if p[1] else None)
+
+        self._tree(root_path, TravConf(
+            trav_map
+        ))
+
+    def vtree(self, root_path, **kwargs):
+        return list(flatten_dict(self.tree(root_path, **kwargs)).values())

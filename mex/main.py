@@ -45,9 +45,15 @@ class Val:
 
     def __str__(self):
         if self.valType == ValType.ERROR:
-            return str("Error({})".format(self.val))
+            return "Error({})".format(self.val)
         else:
             return str(self.val)
+
+    def raw (self):
+        if self.valType == ValType.ERROR:
+            return "RawError({})".format(self.val)
+        else:
+            return self.val
 
 ####################
 # Helper functions #
@@ -61,7 +67,7 @@ def do_eval_in_sub(scope, m):
 
     str_key = indent + name
     name = add_scope(scope, name)
-    control_char = control_sequence[0] # e.g.: from "E>" to "E"
+    control_char = control_seq[0] # e.g.: from "E>" to "E"
 
     if control_char == "$":
         dotkey.insert(cached_exps, name, exp)
@@ -151,7 +157,7 @@ def do_eval(exp_key, exp, scope):
 def scope_of(ident):
     return ident.split('.')[:-1]
 
-def update_scope_and_then(scope, old_scope_lv, linenum, passthrough_re):
+def update_scope_and_then(line, scope, old_scope_lv, linenum, passthrough_re):
     indent_lv = 0
     new_subscope = ""
     just_augmented_scope = False
@@ -234,7 +240,7 @@ def main():
         if heading_re.match(line):
             continue
 
-        m, scope, cur_scope_lv = update_scope_and_then(scope, cur_scope_lv, linenum, keyval_pair_re)
+        m, scope, cur_scope_lv = update_scope_and_then(line, scope, cur_scope_lv, linenum, keyval_pair_re)
         if m:
             name = m.group(2)
             control_seq = m.group(3)
@@ -248,7 +254,7 @@ def main():
                 val = Val(ValType.LITERAL, m.group(4))
             dotkey.insert(env, add_scope(scope, name), val, True)
 
-    eprint(env, end = '')
+    # eprint(env, end = '')
 
     # eprint(body)
     # eprint(storage)
@@ -269,7 +275,7 @@ def main():
             print(line)
             continue
 
-        m, scope, cur_scope_lv = update_scope_and_then(scope, cur_scope_lv, linenum, keyval_pair_re)
+        m, scope, cur_scope_lv = update_scope_and_then(line, scope, cur_scope_lv, linenum, keyval_pair_re)
 
         if m:
             control_sequence = m.group(3)

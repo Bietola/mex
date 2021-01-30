@@ -1,0 +1,16 @@
+constant: 10
+
+- test:
+    -test:$> ${ ret = $.other.l1 + $.other.l2 + $constant }
+    -other:
+        -l1: 3
+        -l2:$> ${ ret.update({ 'ret': $.l1 + 2 }) } 
+        -l3: "hello"
+        -l4:#> 2
+
+test: "hello"
+teast2:$> ${ $test + " there" } 
+
+# STORAGE
+
+{"test2": "${ [1, 2, 3, 4] + [2, 3] } "}

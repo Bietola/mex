@@ -12,6 +12,10 @@ def insert(d, s, val, err_on_present = False):
         d[topkey] = val
 
 def get(d, s):
+    # Empty path is root of dict
+    if len(s) == 0:
+        return d
+
     splt_s = s.split('.', 1)
     topkey = splt_s[0]
     rest = splt_s[1] if len(splt_s) == 2 else None
