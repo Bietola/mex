@@ -1,6 +1,5 @@
 from mex.context import *
 
-
 """
 subject:
     studied:
@@ -37,7 +36,6 @@ mock_ctx = Context(
 def test_tree():
     result = mock_ctx.tree('.')
 
-    # CICCIO: Turn numbers into Vals in mocks
     expected = {
         'l1': 10,
         'l2': 22,

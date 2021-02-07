@@ -3,11 +3,15 @@ import sys
 import json
 import contextlib
 import io
+import traceback
 
 from mex.utils import eprint
-from mex.context import Context, add_scope
+from mex.context import Context, add_scope, scopify
 import mex.dotted_dict as dotkey
 from mex.val import *
+
+# TODO: Remove this
+from datetime import date
 
 ###########
 # Globals #
@@ -73,11 +77,16 @@ def is_float(value):
     return False
 
 def do_eval_interpolation(exp_key, interpolated_str, scope):
-    return re.sub(
+    # TODO: optimize
+    if m := re.compile(r'^\$\s*\{(.*)\}\s*$').match(interpolated_str):
+        print("match: ", m.group(0))
+        return do_eval(exp_key, m.group(1), scope)
+
+    return Val.Lit(re.sub(
         r'\$\{(.*?)\}',
         lambda m: str(do_eval(exp_key, m.group(1), scope)),
         interpolated_str
-    )
+    ))
 
 def do_eval(exp_key, exp, scope):
     def sub_identifier(m):
@@ -89,19 +98,19 @@ def do_eval(exp_key, exp, scope):
 
         val = dotkey.get(env, ident)
         if val == None:
-            return Val(ValType.ERROR, "(No identifier named \"" + ident + "\")")
+            return str(Val(ValType.ERROR, "(No identifier named \"" + ident + "\")"))
         elif type(val) is dict:
-            return Val(ValType.ERROR, ident + " is a dictionary")
+            return str(Val(ValType.ERROR, ident + " is a dictionary"))
         elif val.val == None:
-            return Val(ValType.ERROR, ident + " has a Null value")
+            return str(Val(ValType.ERROR, ident + " has a Null value"))
         elif val.valType == ValType.ERROR:
-            return val
+            return str(val)
         elif val.valType == ValType.EXPR:
-            return do_eval_interpolation(exp_key, val.val, scope_of(ident))
+            return str(do_eval_interpolation(scopify(ident)[-1], val.val, scope_of(ident)))
         elif val.valType == ValType.LITERAL:
             # TODO: Do this only if necessary
             dotkey.insert(env, ident, val, False)
-            return val
+            return f'dotkey.get(env, "{ident}").raw()'
         else:
             assert False, "Fatal: Unhandled branch"
 
@@ -114,16 +123,31 @@ def do_eval(exp_key, exp, scope):
     stmts = exp.split(';')
     try:
         ctx = Context(exp_key, scope, env, cached_exps)
+        execCtx = {
+            'ctx': ctx,
+            'dotkey': dotkey,
+            'env': env,
+            # TODO: remove default date import
+            'date': date
+        }
 
         for stmt in stmts[:-1]:
-            exec(stmt.strip(), {'ctx': ctx})
+            exec(stmt.strip(), execCtx)
 
-        exec('ctx.ret = {}'.format(stmts[-1].strip()), {'ctx': ctx})
+        exec('ctx.ret = {}'.format(stmts[-1].strip()), execCtx)
 
-        return Val.Lit(ctx.ret)
+        return Val.Lit(execCtx['ctx'].ret)
 
-    except Exception as e:
-        return Val(ValType.ERROR, "EvalError({}) on Program({})".format(e, stmts))
+    except Exception:
+        scope_lv = len(scope)
+        tb = traceback.format_exc()
+        return Val(ValType.ERROR, "ExecError(\n{}) on Program({})".format(
+            '\n'.join(map(
+                lambda ln: '\t' * (scope_lv + 1) + ln,
+                tb.split('\n')[:-1]
+            )) + '\n' + '\t' * scope_lv + tb.split('\n')[-1],
+            stmts
+        ))
 
     # eprint(exp_w_subs)
 

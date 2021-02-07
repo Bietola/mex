@@ -94,16 +94,21 @@ class Context:
             return {}
 
         # TODO: Figure this out (NB. Currently only works with '.' as root_path)
-        # cur_item_abs = add_scope_rel(self.scope, self.cur_item, root_path)
-        cur_item_abs = self.cur_item.split('.')[-1]
-        return { 
+        # cur_item_rel2root = expand_path_rel(self.cur_item, root_path)
+        cur_item_rel2root = self.cur_item.split('.')[-1]
+        ret = { 
             k: v for (k, v)
             in map(
                 tcfg.trav_map,
-                root.items()
+                map(
+                    lambda x: (x[0], x[1].eval(x[0], scopify(root_path))),
+                    root.items()
+                )
             )
-            if k != cur_item_abs 
         }
+        dotkey.pop(ret, cur_item_rel2root)
+
+        return ret
 
     def _trav_flags(raw=1):
         trav_map = lambda x: x

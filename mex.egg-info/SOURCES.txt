@@ -4,6 +4,7 @@ mex/__init__.py
 mex/context.py
 mex/dotted_dict.py
 mex/main.py
+mex/mex-err
 mex/utils.py
 mex/val.py
 mex.egg-info/PKG-INFO

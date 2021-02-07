@@ -1,10 +1,18 @@
 constant: 10
 
+today:$> ${ date.today() }
+tomorrow:#> 2021-02-01
+
 test:
-    total:$> ${ sum(ctx.vtree('.')) }
+    total:#> 14.0
     l1: 1
     l2: 2
     l3: 3
     l4: 4
+    l5:#> 4.0
 
 test2: 2
+
+# STORAGE
+
+{"test": {"total": "${ sum(ctx.vtree('.')) }", "l5": "${ $.l4 }"}, "today": "${ date.today() }", "tomorrow": "${ dotkey.get(env, 'today') }"}

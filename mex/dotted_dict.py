@@ -27,3 +27,15 @@ def get(d, s):
     else:
         return get(d[topkey], rest)
 
+def pop(d, k):
+    splt_k = k.split('.', 1)
+    topkey = splt_k[0]
+    rest = splt_k[1] if len(splt_k) == 2 else None
+
+    if rest:
+        if not d.get(topkey, None):
+            return None
+        pop(d[topkey], rest)
+    else:
+        # TODO: Check for duplicates
+        return d.pop(topkey)

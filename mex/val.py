@@ -33,3 +33,13 @@ class Val:
             return "RawError({})".format(self.val)
         else:
             return self.val
+
+    def eval(self, key, scope):
+        if self.valType == ValType.ERROR or self.valType == ValType.LITERAL:
+            return self
+        elif self.valType == ValType.EXPR:
+            import mex.main
+            return mex.main.do_eval_interpolation(key, self.val, scope)
+        else:
+            assert False, "Illegal branch"
+
